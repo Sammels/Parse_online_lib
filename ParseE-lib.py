@@ -1,6 +1,6 @@
 import requests
 import os
-from pathlib import Path
+
 
 def download_books_txt():
     """Скачивает книги в txt формате."""
@@ -15,11 +15,14 @@ def download_books_txt():
         with open(f'books/id{book}.txt', 'wb') as file:
             file.write(response.content)
 
+
 def create_download_directory():
     try:
-        os.makedirs("/home/sammels/Документы/Work/Devman/DevmanCourse_week28/ParseOnlineLib/books/", exist_ok=True)
+        os.makedirs("books/", exist_ok=True)
     except FileExistsError:
         pass
+
+
 def main():
     """Запускает исполнение скрипта."""
     create_download_directory()
