@@ -1,4 +1,5 @@
 import requests
+import os
 from pathlib import Path
 
 def download_books_txt():
@@ -15,7 +16,10 @@ def download_books_txt():
             file.write(response.content)
 
 def create_download_directory():
-    Path("/home/sammels/Документы/Work/Devman/DevmanCourse_week28/ParseOnlineLib/books/").mkdir(parents=True, exist_ok=True)
+    try:
+        os.makedirs("/home/sammels/Документы/Work/Devman/DevmanCourse_week28/ParseOnlineLib/books/", exist_ok=True)
+    except FileExistsError:
+        pass
 def main():
     """Запускает исполнение скрипта."""
     create_download_directory()
