@@ -1,9 +1,9 @@
 import os
 import requests
 
-from bs4 import BeautifulSoup as bs
+from urllib.parse import urljoin
 from pathvalidate import sanitize_filename
-
+from bs4 import BeautifulSoup as bs
 
 def download_txt(url, filename, folder='books/'):
     """Функция для скачивания текстовых файлов.
@@ -26,10 +26,30 @@ def download_txt(url, filename, folder='books/'):
             file.write(response.content)
 
 
+def download_images(url, filename, folede='images/'):
+    """Функция для скачивания текстовых файлов.
+
+    Args:
+        url (str): Cсылка на текст, который хочется скачать.
+        filename (str): Имя файла, с которым сохранять.
+        folder (str): Папка, куда сохранять.
+
+    Returns:
+        str: Путь до файла, куда сохранён текст.
+    """
+
+    response = requests.get(url)
+    response.raise_for_status()
+
+    with open(f"images/{filename}", 'wb') as file:
+        file.write(response.content)
+
+
 def create_download_directory():
     """Создает директорию куда для скачивания файлов."""
     try:
         os.makedirs("books/", exist_ok=True)
+        os.makedirs("images/", exist_ok=True)
     except FileExistsError:
         print("Папка уже существует.")
 
@@ -41,7 +61,8 @@ def check_for_redirect(response):
     Args:
         response (str):
 
-    :return: bool
+    Returns:
+         bool
     """
     try:
         if len(response.history) > 0:
@@ -56,6 +77,8 @@ def check_for_redirect(response):
 
 def main():
     """Запускает скрипт."""
+
+    create_download_directory()
 
     book_number = range(1, 10)
     for book in book_number:
@@ -81,19 +104,22 @@ def main():
 
             #download_txt(book_download_url, f"{book}. {book_name}")
 
-    img_url = 'https://tululu.org/b9/'
-    response = requests.get(img_url)
-    response.raise_for_status()
-    soup = bs(response.text, 'lxml')
-    img_book_tag = (
-        soup.find("body")
-        .find("table", class_="tabs")
-        .find('table', class_='d_book')
-        .find('td')
-        .find('div', class_='bookimage')
-        .find('img')['src']
-    )
-    print(img_book_tag)
+
+            img_book_tag = (
+                soup.find("body")
+                .find("table", class_="tabs")
+                .find('table', class_='d_book')
+                .find('td')
+                .find('div', class_='bookimage')
+                .find('img')['src']
+            )
+
+            file_ending = list(img_book_tag)[-4:]
+            file_ending = "".join(file_ending)
+
+            img_url = urljoin('https://tululu.org', img_book_tag)
+            download_images(img_url, f"{book}{file_ending}")
+
 
 
 
