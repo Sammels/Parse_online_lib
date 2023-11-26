@@ -118,7 +118,25 @@ def main():
             file_ending = "".join(file_ending)
 
             img_url = urljoin('https://tululu.org', img_book_tag)
-            download_images(img_url, f"{book}{file_ending}")
+            #download_images(img_url, f"{book}{file_ending}")
+
+            comments_book_tag = (
+                soup.find("body")
+                .find("table", class_="tabs")
+                .find("td", class_="ow_px_td")
+                .find_all("span", class_="black")
+            )
+            comments = comments_book_tag
+            if len(comments) > 0:
+                com = []
+                for x, y in enumerate(comments):
+                    com.append(comments[x].text)
+
+                print(book_name)
+                for coms in com:
+                    print(coms)
+
+
 
 
 
