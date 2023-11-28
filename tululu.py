@@ -151,7 +151,9 @@ def main():
     parser = argparse.ArgumentParser(
         description="Программа парсит и скачивает данные книги с сайта"
     )
-    parser.add_argument("-start_id", "--start_page", help="Откуда стартует индекс книги")
+    parser.add_argument(
+        "-start_id", "--start_page", help="Откуда стартует индекс книги"
+    )
     parser.add_argument("-end_id", "--end_page", help="Окончание индекса")
     args = parser.parse_args()
 
