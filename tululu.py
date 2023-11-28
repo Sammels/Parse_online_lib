@@ -1,4 +1,5 @@
 import os
+import argparse
 import requests
 
 from urllib.parse import urljoin
@@ -147,10 +148,16 @@ def check_for_redirect(response):
 
 def main():
     """Запускает скрипт."""
+    parser = argparse.ArgumentParser(
+        description="Программа парсит и скачивает данные книги с сайта"
+    )
+    parser.add_argument("-start", "--start_id", help="Откуда стартует индекс книги")
+    parser.add_argument("-stop", "--end_id", help="Окончание индекса")
+    args = parser.parse_args()
 
     create_download_directory()
 
-    book_number = range(1, 10)
+    book_number = range(int(args.start_id), int(args.end_id))
     for book in book_number:
         payload = {"id": book}
         url = f"https://tululu.org/b{book}/"
@@ -162,9 +169,8 @@ def main():
         if check_for_redirect(response) is not False:
             soup = bs(response.text, "lxml")
             test = parse_book_page(soup)
-            print(test, "\n")
-            # download_txt(book_download_url, f"{book}. {test['title']}")
-            # download_images(test['book_image_url'], f"{book}{test['img_ext']}")
+            download_txt(book_download_url, f"{book}. {test['title']}")
+            download_images(test["book_image_url"], f"{book}{test['img_ext']}")
 
 
 if __name__ == "__main__":
