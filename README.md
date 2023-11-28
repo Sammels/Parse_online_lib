@@ -13,7 +13,7 @@ python -m venv env
 ```
 2. Далее клонируем этот репозиторий
 ```text
-git clone "reponame"
+git clone https://github.com/Sammels/Parse_online_lib.git
 ```
 3. После этого нужно установить необходимые библиотеки
 
