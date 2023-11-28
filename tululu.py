@@ -151,13 +151,13 @@ def main():
     parser = argparse.ArgumentParser(
         description="Программа парсит и скачивает данные книги с сайта"
     )
-    parser.add_argument("-start", "--start_id", help="Откуда стартует индекс книги")
-    parser.add_argument("-stop", "--end_id", help="Окончание индекса")
+    parser.add_argument("-start_id", "--start_page", help="Откуда стартует индекс книги")
+    parser.add_argument("-end_id", "--end_page", help="Окончание индекса")
     args = parser.parse_args()
 
     create_download_directory()
 
-    book_number = range(int(args.start_id), int(args.end_id))
+    book_number = range(int(args.start_page), int(args.end_page))
     for book in book_number:
         payload = {"id": book}
         url = f"https://tululu.org/b{book}/"
@@ -168,9 +168,12 @@ def main():
 
         if check_for_redirect(response) is not False:
             soup = bs(response.text, "lxml")
-            test = parse_book_page(soup)
-            download_txt(book_download_url, f"{book}. {test['title']}")
-            download_images(test["book_image_url"], f"{book}{test['img_ext']}")
+            parsed_book_page = parse_book_page(soup)
+            download_txt(book_download_url, f"{book}. {parsed_book_page['title']}")
+            download_images(
+                parsed_book_page["book_image_url"],
+                f"{book}{parsed_book_page['img_ext']}",
+            )
 
 
 if __name__ == "__main__":
