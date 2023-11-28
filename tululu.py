@@ -5,7 +5,77 @@ from urllib.parse import urljoin
 from pathvalidate import sanitize_filename
 from bs4 import BeautifulSoup as bs
 
-def download_txt(url, filename, folder='books/'):
+
+def parse_book_page(html_content) -> dict:
+    """Принимает html страницы и возвращает словарь.
+
+        book_information = {'title': f"Заголовок: {book_name}",
+                "genre": genre,
+                "book_image_url": img_url,
+                "img_ext": extenshion,
+                "comments": book_comments,
+                }
+
+    Args:
+        html_content (str): Сырой HTML код страницы.
+
+    Returns:
+        dict: Словарь содержащий данные книги.
+
+    """
+    title_tag = (
+        html_content.find("body")
+        .find("table", class_="tabs")
+        .find("td", class_="ow_px_td")
+        .find("h1")
+    )
+    split_book_info = title_tag.text.rsplit("::")
+    book_name = "".join(split_book_info[0]).replace("\xa0", "").strip(" ")
+
+    img_book_tag = (
+        html_content.find("body")
+        .find("table", class_="tabs")
+        .find("table", class_="d_book")
+        .find("td")
+        .find("div", class_="bookimage")
+        .find("img")["src"]
+    )
+    extenshion = list(img_book_tag)[-4:]
+    extenshion = "".join(extenshion)
+    img_url = urljoin("https://tululu.org", img_book_tag)
+
+    comments_book_tag = (
+        html_content.find("body")
+        .find("table", class_="tabs")
+        .find("td", class_="ow_px_td")
+        .find_all("span", class_="black")
+    )
+    comments = comments_book_tag
+    book_comments = []
+    if len(comments) > 0:
+        com = []
+        for x, y in enumerate(comments):
+            com.append(comments[x].text)
+        for coms in com:
+            book_comments.append(coms)
+
+    genre_book_tag = html_content.find("body").find("span", class_="d_book")
+    genre_book = genre_book_tag.find_all("a")
+    genre = []
+    for x in genre_book:
+        genre.append(x.text)
+
+    book_information = {
+        "title": f"Заголовок: {book_name}",
+        "genre": genre,
+        "book_image_url": img_url,
+        "img_ext": extenshion,
+        "comments": book_comments,
+    }
+    return book_information
+
+
+def download_txt(url, filename, folder="books/"):
     """Функция для скачивания текстовых файлов.
 
     Args:
@@ -22,11 +92,11 @@ def download_txt(url, filename, folder='books/'):
     filename = sanitize_filename(f"{filename}.txt")
     filepath = os.path.join(folder)
     if check_for_redirect(response) is not False:
-        with open(f'{filepath}{filename}', 'wb') as file:
+        with open(f"{filepath}{filename}", "wb") as file:
             file.write(response.content)
 
 
-def download_images(url, filename, folede='images/'):
+def download_images(url, filename, folder="images/"):
     """Функция для скачивания текстовых файлов.
 
     Args:
@@ -41,7 +111,7 @@ def download_images(url, filename, folede='images/'):
     response = requests.get(url)
     response.raise_for_status()
 
-    with open(f"images/{filename}", 'wb') as file:
+    with open(f"images/{filename}", "wb") as file:
         file.write(response.content)
 
 
@@ -91,68 +161,12 @@ def main():
 
         if check_for_redirect(response) is not False:
             soup = bs(response.text, "lxml")
+            test = parse_book_page(soup)
+            print(test, "\n")
+            # download_txt(book_download_url, f"{book}. {test['title'}")
 
-            title_tag = (
-                soup.find("body")
-                .find("table", class_="tabs")
-                .find("td", class_="ow_px_td")
-                .find("h1")
-            )
-
-            split_book_info = title_tag.text.rsplit('::')
-            book_name = ''.join(split_book_info[0]).replace('\xa0', '').strip(' ')
-
-            #download_txt(book_download_url, f"{book}. {book_name}")
+            # download_images(test['book_image_url'], f"{book}{test['img_ext']}")
 
 
-            img_book_tag = (
-                soup.find("body")
-                .find("table", class_="tabs")
-                .find('table', class_='d_book')
-                .find('td')
-                .find('div', class_='bookimage')
-                .find('img')['src']
-            )
-
-            file_ending = list(img_book_tag)[-4:]
-            file_ending = "".join(file_ending)
-
-            img_url = urljoin('https://tululu.org', img_book_tag)
-            #download_images(img_url, f"{book}{file_ending}")
-
-            # comments_book_tag = (
-            #     soup.find("body")
-            #     .find("table", class_="tabs")
-            #     .find("td", class_="ow_px_td")
-            #     .find_all("span", class_="black")
-            # )
-            # comments = comments_book_tag
-            # if len(comments) > 0:
-            #     com = []
-            #     for x, y in enumerate(comments):
-            #         com.append(comments[x].text)
-            #
-            #     print(book_name)
-            #     for coms in com:
-            #         print(coms)
-
-            genre_book_tag = (
-                soup.find("body")
-                .find('span', class_="d_book")
-            )
-
-            genre_book = genre_book_tag.find_all('a')
-            genre = []
-            for x in genre_book:
-                genre.append(x.text)
-
-            print(book_name)
-            print(genre)
-
-
-
-
-
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
