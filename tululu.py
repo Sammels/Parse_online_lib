@@ -163,8 +163,7 @@ def main():
             soup = bs(response.text, "lxml")
             test = parse_book_page(soup)
             print(test, "\n")
-            # download_txt(book_download_url, f"{book}. {test['title'}")
-
+            # download_txt(book_download_url, f"{book}. {test['title']}")
             # download_images(test['book_image_url'], f"{book}{test['img_ext']}")
 
 
