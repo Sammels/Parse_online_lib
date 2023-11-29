@@ -32,8 +32,8 @@ def parse_book_page(html_content) -> dict:
         .find("td", class_="ow_px_td")
         .find("h1")
     )
-    split_book_info = title_tag.text.rsplit("::")
-    book_name = "".join(split_book_info[0]).replace("\xa0", "").strip(" ")
+    split_book = title_tag.text.rsplit("::")
+    book_name = "".join(split_book[0]).replace("\xa0", "").strip(" ")
 
     img_book_tag = (
         html_content.find("body")
