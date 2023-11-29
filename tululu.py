@@ -188,9 +188,9 @@ def main():
                 )
         except requests.exceptions.HTTPError:
             print("Ошибка запроса.")
-            exit()
         except requests.exceptions.ConnectionError:
             print("Проблемы с соединением.")
+            time.sleep(25)
 
 if __name__ == "__main__":
     main()
