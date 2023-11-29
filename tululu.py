@@ -1,4 +1,6 @@
 import os
+import time
+from time import time
 import argparse
 import requests
 
@@ -168,20 +170,27 @@ def main():
         url = f"https://tululu.org/b{book_id}/"
         book_download_url = f"https://tululu.org/txt.php"
 
-        response = requests.get(url, params=payload)
-        response.raise_for_status()
+        try:
+            response = requests.get(url, params=payload)
+            response.raise_for_status()
 
-        if check_for_redirect(response) is not False:
-            soup = bs(response.text, "lxml")
-            parsed_book_page = parse_book_page(soup)
-            download_txt(
-                book_download_url, payload, f"{book_id}. {parsed_book_page['title']}"
-            )
-            download_images(
-                parsed_book_page["book_image_url"],
-                f"{book_id}{parsed_book_page['img_ext']}",
-            )
-
+            if check_for_redirect(response) is not False:
+                soup = bs(response.text, "lxml")
+                parsed_book_page = parse_book_page(soup)
+                download_txt(
+                    book_download_url,
+                    payload,
+                    f"{book_id}. {parsed_book_page['title']}",
+                )
+                download_images(
+                    parsed_book_page["book_image_url"],
+                    f"{book_id}{parsed_book_page['img_ext']}",
+                )
+        except requests.exceptions.HTTPError:
+            print("Ошибка запроса.")
+            exit()
+        except requests.exceptions.ConnectionError:
+            print("Проблемы с соединением.")
 
 if __name__ == "__main__":
     main()
