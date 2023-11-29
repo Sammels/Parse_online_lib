@@ -15,7 +15,7 @@ def parse_book_page(html_content) -> dict:
         book_information = {'title': f"Заголовок: {book_name}",
                 "genre": genre,
                 "book_image_url": img_url,
-                "img_ext": extenshion,
+                "img_ext": extension,
                 "comments": book_comments,
                 }
 
@@ -43,8 +43,8 @@ def parse_book_page(html_content) -> dict:
         .find("div", class_="bookimage")
         .find("img")["src"]
     )
-    extenshion = list(img_book_tag)[-4:]
-    extenshion = "".join(extenshion)
+    extension = list(img_book_tag)[-4:]
+    extension = "".join(extension)
     img_url = urljoin("https://tululu.org", img_book_tag)
 
     comments_book_tag = (
@@ -72,7 +72,7 @@ def parse_book_page(html_content) -> dict:
         "title": f"Заголовок: {book_name}",
         "genre": genre,
         "book_image_url": img_url,
-        "img_ext": extenshion,
+        "img_ext": extension,
         "comments": book_comments,
     }
     return book_information
