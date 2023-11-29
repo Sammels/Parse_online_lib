@@ -76,7 +76,7 @@ def parse_book_page(html_content) -> dict:
     return book_information
 
 
-def download_txt(url, filename, folder="books/"):
+def download_txt(url, params, filename, folder="books/"):
     """Функция для скачивания текстовых файлов.
 
     Args:
@@ -87,7 +87,7 @@ def download_txt(url, filename, folder="books/"):
     Returns:
         str: Путь до файла, куда сохранён текст.
     """
-    response = requests.get(url)
+    response = requests.get(url, params=params)
     response.raise_for_status()
 
     filename = sanitize_filename(f"{filename}.txt")
@@ -166,7 +166,7 @@ def main():
     for book_id in book_index:
         payload = {"id": book_id}
         url = f"https://tululu.org/b{book_id}/"
-        book_download_url = f"https://tululu.org/txt.php?id={book_id}"
+        book_download_url = f"https://tululu.org/txt.php"
 
         response = requests.get(url, params=payload)
         response.raise_for_status()
@@ -174,7 +174,9 @@ def main():
         if check_for_redirect(response) is not False:
             soup = bs(response.text, "lxml")
             parsed_book_page = parse_book_page(soup)
-            download_txt(book_download_url, f"{book_id}. {parsed_book_page['title']}")
+            download_txt(
+                book_download_url, payload, f"{book_id}. {parsed_book_page['title']}"
+            )
             download_images(
                 parsed_book_page["book_image_url"],
                 f"{book_id}{parsed_book_page['img_ext']}",
