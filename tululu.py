@@ -149,15 +149,21 @@ def main():
         description="Программа парсит и скачивает данные книги с сайта"
     )
     parser.add_argument(
-        "-start_id", "--start_page",type=int ,default=1, help="Откуда стартует индекс книги"
+        "-start_id",
+        "--start_page",
+        type=int,
+        default=1,
+        help="Откуда стартует индекс книги",
     )
-    parser.add_argument("-end_id", "--end_page", type=int, default=10, help="Окончание индекса")
+    parser.add_argument(
+        "-end_id", "--end_page", type=int, default=10, help="Окончание индекса"
+    )
     args = parser.parse_args()
 
     create_download_directory()
 
-    book_number = range(args.start_page, args.end_page)
-    for book in book_number:
+    book_index = range(args.start_page, args.end_page)
+    for book in book_index:
         payload = {"id": book}
         url = f"https://tululu.org/b{book}/"
         book_download_url = f"https://tululu.org/txt.php?id={book}"
