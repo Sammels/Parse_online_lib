@@ -118,11 +118,8 @@ def download_images(url, filename, folder="images/"):
 
 def create_download_directory():
     """Создает директорию куда для скачивания файлов."""
-    try:
-        os.makedirs("books/", exist_ok=True)
-        os.makedirs("images/", exist_ok=True)
-    except FileExistsError:
-        print("Папка уже существует.")
+    os.makedirs("books/", exist_ok=True)
+    os.makedirs("images/", exist_ok=True)
 
 
 def check_for_redirect(response):
