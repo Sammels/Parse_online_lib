@@ -90,7 +90,7 @@ def download_txt(url, params, filename, folder="books/"):
             file.write(response.content)
 
 
-def download_images(url, filename, folder="images/"):
+def download_image(url, filename, folder="images/"):
     """Функция для скачивания текстовых файлов.
 
     Args:
@@ -173,7 +173,7 @@ def main():
                     payload,
                     f"{book_id}. {parsed_book_page['title']}",
                 )
-                download_images(
+                download_image(
                     parsed_book_page["book_image_url"],
                     f"{book_id}{parsed_book_page['img_ext']}",
                 )
