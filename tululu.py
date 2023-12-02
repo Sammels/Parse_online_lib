@@ -54,19 +54,13 @@ def parse_book_page(html_content) -> dict:
         .find_all("span", class_="black")
     )
     comments = comments_book_tag
-    book_comments = []
-    if len(comments) > 0:
-        com = []
-        for x, y in enumerate(comments):
-            com.append(comments[x].text)
-        for coms in com:
-            book_comments.append(coms)
+    com = [comments[x].text for x, y in enumerate(comments) if len(comments) > 0]
+    book_comments = [coms for coms in com]
 
     genre_book_tag = html_content.find("body").find("span", class_="d_book")
     genre_book = genre_book_tag.find_all("a")
-    genre = []
-    for x in genre_book:
-        genre.append(x.text)
+
+    genre = [x.text for x in genre_book]
 
     book_information = {
         "title": f"Заголовок: {book_name}",
@@ -192,5 +186,9 @@ def main():
             print("Проблемы с соединением.")
             time.sleep(25)
 
+
 if __name__ == "__main__":
+    work_time = time()
     main()
+    now_time = time() - work_time
+    print(now_time)
