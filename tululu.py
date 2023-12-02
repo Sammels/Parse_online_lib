@@ -37,9 +37,6 @@ def parse_book_page(html_content) -> dict:
 
     img_book_tag = (
         html_content.find("body")
-        .find("table", class_="tabs")
-        .find("table", class_="d_book")
-        .find("td")
         .find("div", class_="bookimage")
         .find("img")["src"]
     )
