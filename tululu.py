@@ -34,7 +34,6 @@ def parse_book_page(html_content) -> dict:
     )
     split_book = title_tag.text.rsplit("::")
     book_name = "".join(split_book[0]).replace("\xa0", "").strip(" ")
-
     img_book_tag = (
         html_content.find("body")
         .find("div", class_="bookimage")
@@ -42,7 +41,9 @@ def parse_book_page(html_content) -> dict:
     )
     extension = list(img_book_tag)[-4:]
     extension = "".join(extension)
+
     img_url = urljoin("https://tululu.org", img_book_tag)
+
 
     comments_book_tag = (
         html_content.find("body")
@@ -125,15 +126,8 @@ def check_for_redirect(response):
     Returns:
          bool
     """
-    try:
-        if len(response.history) > 0:
-            if response.history[0].status_code == 200:
-                pass
-            else:
-                raise requests.exceptions.HTTPError
-
-    except requests.exceptions.HTTPError:
-        return False
+    if not response.history:
+        return True
 
 
 def main():
@@ -157,6 +151,7 @@ def main():
 
     book_index = range(args.start_page, args.end_page)
     for book_id in book_index:
+        print(f"Iteration № {book_id}")
         payload = {"id": book_id}
         url = f"https://tululu.org/b{book_id}/"
         book_download_url = f"https://tululu.org/txt.php"
@@ -165,7 +160,7 @@ def main():
             response = requests.get(url, params=payload)
             response.raise_for_status()
 
-            if check_for_redirect(response) is not False:
+            if check_for_redirect(response):
                 soup = bs(response.text, "lxml")
                 parsed_book_page = parse_book_page(soup)
                 download_txt(
