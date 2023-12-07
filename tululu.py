@@ -180,7 +180,4 @@ def main():
 
 
 if __name__ == "__main__":
-    work_time = time()
     main()
-    now_time = time() - work_time
-    print(now_time)
