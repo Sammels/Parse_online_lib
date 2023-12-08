@@ -9,11 +9,11 @@ from pathvalidate import sanitize_filename
 from bs4 import BeautifulSoup as bs
 
 
-def parse_book_page(html_content) -> dict:
+def parse_book_page(html_content, response) -> dict:
     """Принимает html страницы и возвращает словарь.
 
-        book_information = {'title': f"Заголовок: {book_name}",
-                "genre": genre,
+        book = {'title': f"Заголовок: {book_name}",
+                "genres": genres,
                 "book_image_url": img_url,
                 "img_ext": extension,
                 "comments": book_comments,
@@ -40,31 +40,23 @@ def parse_book_page(html_content) -> dict:
     extension = list(img_book_tag)[-4:]
     extension = "".join(extension)
 
-    img_url = urljoin("https://tululu.org", img_book_tag)
+    img_url = urljoin(response.url, img_book_tag)
 
-    comments_book_tag = (
-        html_content.find("body")
-        .find("table", class_="tabs")
-        .find("td", class_="ow_px_td")
-        .find_all("span", class_="black")
-    )
-    comments = comments_book_tag
-    com = [comments[x].text for x, y in enumerate(comments) if len(comments) > 0]
-    book_comments = [coms for coms in com]
+    book_comments = [comment.text for comment in html_content.select('.texts span')]
 
     genre_book_tag = html_content.find("body").find("span", class_="d_book")
     genre_book = genre_book_tag.find_all("a")
 
-    genre = [x.text for x in genre_book]
+    genres = [x.text for x in genre_book]
 
-    book_information = {
+    book = {
         "title": f"Заголовок: {book_name}",
-        "genre": genre,
+        "genres": genres,
         "book_image_url": img_url,
         "img_ext": extension,
         "comments": book_comments,
     }
-    return book_information
+    return book
 
 
 def download_txt(url, params, filename, folder="books/"):
@@ -80,12 +72,15 @@ def download_txt(url, params, filename, folder="books/"):
     """
     response = requests.get(url, params=params)
     response.raise_for_status()
+    check_for_redirect(response)
+    os.makedirs("books/", exist_ok=True)
+
 
     filename = sanitize_filename(f"{filename}.txt")
     filepath = os.path.join(folder)
-    if check_for_redirect(response) is not False:
-        with open(f"{filepath}{filename}", "wb") as file:
-            file.write(response.content)
+
+    with open(f"{filepath}{filename}", "wb") as file:
+        file.write(response.content)
 
 
 def download_image(url, filename, folder="images/"):
@@ -103,6 +98,9 @@ def download_image(url, filename, folder="images/"):
     response = requests.get(url)
     response.raise_for_status()
 
+    check_for_redirect(response)
+    os.makedirs("images/", exist_ok=True)
+
     with open(f"images/{filename}", "wb") as file:
         file.write(response.content)
 
@@ -117,8 +115,8 @@ def check_for_redirect(response):
     Returns:
          bool
     """
-    if not response.history:
-        return True
+    if response.history:
+        raise requests.HTTPError
 
 
 def main():
@@ -138,8 +136,7 @@ def main():
     )
     args = parser.parse_args()
 
-    os.makedirs("books/", exist_ok=True)
-    os.makedirs("images/", exist_ok=True)
+
 
     book_index = range(args.start_page, args.end_page)
     for book_id in book_index:
@@ -152,18 +149,18 @@ def main():
             response = requests.get(url, params=payload)
             response.raise_for_status()
 
-            if check_for_redirect(response):
-                soup = bs(response.text, "lxml")
-                parsed_book_page = parse_book_page(soup)
-                download_txt(
-                    book_download_url,
-                    payload,
-                    f"{book_id}. {parsed_book_page['title']}",
-                )
-                download_image(
-                    parsed_book_page["book_image_url"],
-                    f"{book_id}{parsed_book_page['img_ext']}",
-                )
+            check_for_redirect(response)
+            soup = bs(response.text, "lxml")
+            parsed_book_page = parse_book_page(soup, response)
+            download_txt(
+                book_download_url,
+                payload,
+                f"{book_id}. {parsed_book_page['title']}",
+            )
+            download_image(
+                parsed_book_page["book_image_url"],
+                f"{book_id}{parsed_book_page['img_ext']}",
+            )
         except requests.exceptions.HTTPError:
             print("Ошибка запроса.")
         except requests.exceptions.ConnectionError:
