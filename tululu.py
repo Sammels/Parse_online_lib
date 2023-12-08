@@ -35,15 +35,12 @@ def parse_book_page(html_content) -> dict:
     split_book = title_tag.text.rsplit("::")
     book_name = "".join(split_book[0]).replace("\xa0", "").strip(" ")
     img_book_tag = (
-        html_content.find("body")
-        .find("div", class_="bookimage")
-        .find("img")["src"]
+        html_content.find("body").find("div", class_="bookimage").find("img")["src"]
     )
     extension = list(img_book_tag)[-4:]
     extension = "".join(extension)
 
     img_url = urljoin("https://tululu.org", img_book_tag)
-
 
     comments_book_tag = (
         html_content.find("body")
@@ -110,12 +107,6 @@ def download_image(url, filename, folder="images/"):
         file.write(response.content)
 
 
-def create_download_directory():
-    """Создает директорию куда для скачивания файлов."""
-    os.makedirs("books/", exist_ok=True)
-    os.makedirs("images/", exist_ok=True)
-
-
 def check_for_redirect(response):
     """
     Проверяет статус ответа, если не 200, то исключение.
@@ -147,7 +138,8 @@ def main():
     )
     args = parser.parse_args()
 
-    create_download_directory()
+    os.makedirs("books/", exist_ok=True)
+    os.makedirs("images/", exist_ok=True)
 
     book_index = range(args.start_page, args.end_page)
     for book_id in book_index:
