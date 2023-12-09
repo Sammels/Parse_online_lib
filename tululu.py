@@ -44,10 +44,10 @@ def parse_book_page(html_content, response) -> dict:
 
     book_comments = [comment.text for comment in html_content.select('.texts span')]
 
-    genre_book_tag = html_content.find("body").find("span", class_="d_book")
-    genre_book = genre_book_tag.find_all("a")
+    book_genre_tag = html_content.find("body").find("span", class_="d_book")
+    book_genre = book_genre_tag.find_all("a")
 
-    genres = [x.text for x in genre_book]
+    genres = [x.text for x in book_genre]
 
     book = {
         "title": f"Заголовок: {book_name}",
