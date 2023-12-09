@@ -146,7 +146,7 @@ def main():
         book_download_url = f"https://tululu.org/txt.php"
 
         try:
-            response = requests.get(url, params=payload)
+            response = requests.get(url)
             response.raise_for_status()
 
             check_for_redirect(response)
